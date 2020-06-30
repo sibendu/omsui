@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/catalog")
-public class CategoryController {
+public class CategoryController { 
 
 	@Autowired
 	private CatalogService catalogService;
