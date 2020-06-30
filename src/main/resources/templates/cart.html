@@ -178,7 +178,7 @@
 			//console.log(thisProductNode);
 			//console.log(thisProductNode.data);
 			
-			html += '<input name="item.data.code-qty" type="number" value="'+item.quantity+'" min="'+thisProductNode.data.min+'" max="'+thisProductNode.data.max+'" step="'+thisProductNode.data.step+'"/> '+item.unit; 
+			html += '<input name="'+item.data+'-qty" type="number" value="'+item.quantity+'" min="'+thisProductNode.data.min+'" max="'+thisProductNode.data.max+'" step="'+thisProductNode.data.step+'"/> '+item.unit; 
 			html += '</div>';
 			
 			html += '<div>';	
