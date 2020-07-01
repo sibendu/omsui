@@ -158,12 +158,14 @@
 		for (index = 0; index < cartitems.length; index++) {
 				
 			var item = cartitems[index];		
-			//console.log(item);
+			//console.log(item+ '  '+item.quantity);
 			
 			var params =  item.id + ',' + '\''+ item.code + '\',' + '\''+ item.name + '\',' ;
 	      	params += '\''+ item.description + '\',' + item.price + ',' + '\''+ item.unit + '\',' ;
 	      	params += '\''+ item.code + '-qty\'';
 		
+	      	//alert(params);
+	      	
 			html += '<li class="list-group-item d-flex justify-content-between lh-condensed">';
 			html += '<div>';
 			html += '<h6 class="my-0">'+item.name+'</h6>';
@@ -178,7 +180,7 @@
 			//console.log(thisProductNode);
 			//console.log(thisProductNode.data);
 			
-			html += '<input name="'+item.data+'-qty" type="number" value="'+item.quantity+'" min="'+thisProductNode.data.min+'" max="'+thisProductNode.data.max+'" step="'+thisProductNode.data.step+'"/> '+item.unit; 
+			html += '<input name="'+item.code+'-qty" type="number" value="'+item.quantity+'" min="'+thisProductNode.data.min+'" max="'+thisProductNode.data.max+'" step="'+thisProductNode.data.step+'"/> '+item.unit; 
 			html += '</div>';
 			
 			html += '<div>';	

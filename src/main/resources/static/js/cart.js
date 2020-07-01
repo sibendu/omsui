@@ -71,7 +71,7 @@ function saveCart() {
 }
 
 function addItemToCart(id, code, name, description, price, unit, fieldName) {
-	//alert(id+' '+name+' '+code+' '+name+' '+description+' '+price+' '+unit+' '+quantity);
+	//alert(id+' '+name+' '+code+' '+name+' '+description+' '+price+' '+unit+' '+fieldName);
 	var input = $("input[name='"+fieldName+"']");
     var quantity = parseFloat(input.val());
 	//alert(input+ ' '+quantity);
