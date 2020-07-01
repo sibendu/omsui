@@ -16,14 +16,21 @@ import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
+@javax.persistence.TableGenerator(
+	    name="SEQ_ORDERS",
+	    table="OMS_SEQ",
+	    pkColumnName = "keyname",
+	    valueColumnName = "keyvalue",
+	    pkColumnValue="ORDERS",
+	    initialValue = 1000,
+	    allocationSize=1
+)
 
 @Entity(name = "ORDERS")
 public class Order implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY) 
-//	@GeneratedValue(generator = "system-uuid")
-//	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "SEQ_ORDERS") 
 	private Long id;
 	private Date created;
 	private String instruction;
@@ -31,8 +38,8 @@ public class Order implements Serializable {
 	private String remarks;
 	private Double totalPrice;
 	
-	private String customerId;
-	private String sellerId;
+	private Long customerId;
+	private Long sellerId;
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	private List<Item> items = new ArrayList<>();
@@ -41,7 +48,7 @@ public class Order implements Serializable {
 		this.created = new Date();
 	}	
 	
-	public Order(Long id, String instruction, String status, String remarks, String customerId, String sellerId, Double totalPrice) {
+	public Order(Long id, String instruction, String status, String remarks, Long customerId, Long sellerId, Double totalPrice) {
 		super();
 		this.id = id;
 		this.created = new Date();
@@ -102,19 +109,19 @@ public class Order implements Serializable {
 		this.items = items;
 	}
 	
-	public String getCustomerId() {
+	public Long getCustomerId() {
 		return customerId;
 	}
 
-	public void setCustomerId(String customerId) {
+	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
 
-	public String getSellerId() {
+	public Long getSellerId() {
 		return sellerId;
 	}
 
-	public void setSellerId(String sellerId) {
+	public void setSellerId(Long sellerId) {
 		this.sellerId = sellerId;
 	}
 

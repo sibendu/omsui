@@ -45,7 +45,7 @@ public class CategoryController {
 	private CatalogService catalogService;
 
 	@RequestMapping(value = "/{seller}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> findCatalog(@PathVariable(name = "seller", required = true) String seller)
+	public ResponseEntity<String> findCatalog(@PathVariable(name = "seller", required = true) Long seller)
 			throws Exception {
 
 		ResponseEntity<String> response;
@@ -56,71 +56,6 @@ public class CategoryController {
 
 		response = new ResponseEntity<String>(productJson, HttpStatus.OK);
 		return response;
-	}
-
-	@GetMapping(path = "/seed") //
-	public @ResponseBody String seedCatalog() throws Exception{
-		// ProductCategory root = Test.getDummyCatalog();
-
-		String seller = "2222";
-
-		ProductCategory cat = null;
-		SKUItem item = null;
-
-		ProductCategory rootCatalog = new ProductCategory(null, seller, "Root Catalog", "Root Catalog", null, null);
-		catalogService.save(rootCatalog);
-		System.out.println("Saved root catalog: " + rootCatalog.getId());
-
-		ProductCategory cat1 = new ProductCategory(null, seller, "Super Category 10", "Super Category 10",
-				rootCatalog.getId(), null);
-		ProductCategory cat2 = new ProductCategory(null, seller, "Super Category 20", "Super Category 20",
-				rootCatalog.getId(), null);
-		ProductCategory cat3 = new ProductCategory(null, seller, "Super Category 30", "Super Category 30",
-				rootCatalog.getId(), null);
-		ProductCategory cat4 = new ProductCategory(null, seller, "Super Category 40", "Super Category 40",
-				rootCatalog.getId(), null);
-
-		catalogService.save(cat1);
-		catalogService.save(cat2);
-		catalogService.save(cat3);
-		catalogService.save(cat4);
-		System.out.println("Saved level 1 categories");
-
-		Long parentId = null;
-
-		for (int i = 0; i < 30; i++) {
-
-			if (i < 5) {
-				parentId = cat1.getId();
-			} else if (i >= 5 && i < 12) {
-				parentId = cat2.getId();
-			} else if (i >= 12 && i < 20) {
-				parentId = cat3.getId();
-			} else {
-				parentId = cat4.getId();
-			}
-
-			int catId = (i + 1) * 100;
-
-			cat = new ProductCategory(null, seller, "Category-" + catId, "Category Description-" + catId, parentId,
-					null);
-
-			for (int k = 1; k < 25; k++) {
-
-				long val = catId + 10 + k;
-
-				item = new SKUItem(null, "sku-" + val, "Item -" + val, "Item Description :::: " + val, new Double(val),
-						"kg", new Double(1), new Double(5), new Double(0.5), new Double(2), cat);
-
-				cat.addItem(item);
-			}
-
-			catalogService.save(cat);
-			System.out.println("Saved category " + cat.getId() + "for parent = " + parentId);
-
-		}
-
-		return "Catalog seeded successfully";
 	}
 
 	@GetMapping(path = "/clean") //

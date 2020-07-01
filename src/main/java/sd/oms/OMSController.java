@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -46,15 +47,25 @@ public class OMSController {
 	public String login(@RequestParam(name = "phone", required = true) String phone,
 			Model model, HttpSession httpSession) {
 		
-		Optional<Customer> customer = customerRepository.findById(phone);
+		System.out.println("login :: "+phone);
+		List<Customer> customers = customerRepository.findByPhone(phone);
 		
-		//System.out.println(productsJson);
+		Customer customer = null;
+		if(customers != null && customers.size() > 0) {
+			for (int i = 0; i < customers.size(); i++) {
+				if(customers.get(i).getPhone().equals(phone)) {
+					customer = customers.get(i);
+				}
+			}
+		}
 		
-		if(customer.isPresent()) {
-			httpSession.setAttribute("customer", customer.get());
+		System.out.println("Customer record :: "+customer);
+		
+		if(customer != null) {
+			httpSession.setAttribute("customer", customer);
 			
 			try {
-				ProductCategory root = catalogService.findCatalog("seller"); // getJson(); Test.getDummyCatalog();
+				ProductCategory root = catalogService.findCatalog(customer.getSeller()); // getJson(); Test.getDummyCatalog();
 				
 				String productsJson = root.toJSON();
 				
@@ -65,9 +76,7 @@ public class OMSController {
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		
-		if(!customer.isPresent()) {
+		}else {
 			model.addAttribute("message", "Invalid login, please contact Admin");
 			return "error";
 		}
@@ -171,7 +180,7 @@ public class OMSController {
         return "signup";
     }
 	
-	public ArrayList<Order> getOrders(String user){
+	public ArrayList<Order> getOrders(Long user){
 		ArrayList<Order> orders = new ArrayList<>();
 		long now = new Date().getTime();
 		Iterable<Order>	allOrders = orderRepository.findByCustomerId(user);
@@ -179,12 +188,12 @@ public class OMSController {
 			//Order status new or processing  
 			if(OMSUtil.ORDER_STATUS_NEW.equals(order.getStatus()) || OMSUtil.ORDER_STATUS_PROCESSING.equals(order.getStatus())) {
 				orders.add(order);
-			}
-			
-			//If order is cancelled or completed, check date
-			if(OMSUtil.ORDER_STATUS_COMPLETED.equals(order.getStatus()) || OMSUtil.ORDER_STATUS_CANCELLED.equals(order.getStatus())) {	
+			}else {
+				//If order is cancelled or completed, check date
+				//if(OMSUtil.ORDER_STATUS_COMPLETED.equals(order.getStatus()) || OMSUtil.ORDER_STATUS_CANCELLED.equals(order.getStatus())) {	
+				
 				long age = TimeUnit.DAYS.convert(Math.abs(now - order.getCreated().getTime()), TimeUnit.MILLISECONDS);
-				if(age < 30) { // Only within last 30 days
+				if(age < 90) { // Only within last 90 days
 					orders.add(order);
 				}
 			}

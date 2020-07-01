@@ -22,11 +22,11 @@ public class CatalogService {
 		categoryRepository.deleteAll();
 	}
 	
-	public ProductCategory findCatalog(String seller) throws Exception {
+	public ProductCategory findCatalog(Long seller) throws Exception {
 		
 		ProductCategory root = null;
 		
-		Iterable<ProductCategory> categories = categoryRepository.findAll();
+		Iterable<ProductCategory> categories = categoryRepository.findBySeller(seller);
 		
 		long id = 0;
 		

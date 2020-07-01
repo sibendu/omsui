@@ -29,7 +29,7 @@ public class ProductCategory implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "SEQ_CATEGORY") 
 	private Long id;
-	private String seller;
+	private Long seller;
 	private String name;
 	private String description;
 	private Long parentId;
@@ -44,7 +44,7 @@ public class ProductCategory implements Serializable {
 		super();
 	}
 	
-	public ProductCategory(Long id, String seller, String name, String description, Long parentId, List<SKUItem> skuItems) {
+	public ProductCategory(Long id, Long seller, String name, String description, Long parentId, List<SKUItem> skuItems) {
 		super();
 		this.seller = seller;
 		this.id = id;
@@ -65,11 +65,11 @@ public class ProductCategory implements Serializable {
 	}
 
 	
-	public String getSeller() {
+	public Long getSeller() {
 		return seller;
 	}
 
-	public void setSeller(String seller) {
+	public void setSeller(Long seller) {
 		this.seller = seller;
 	}
 

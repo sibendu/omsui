@@ -19,11 +19,21 @@ import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@javax.persistence.TableGenerator(
+	    name="SEQ_ITEMS",
+	    table="OMS_SEQ",
+	    pkColumnName = "keyname",
+	    valueColumnName = "keyvalue",
+	    pkColumnValue="ITEMS",
+	    initialValue = 1000,
+	    allocationSize=1
+)
+
 @Entity(name = "ITEMS")
 public class Item implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY) 
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "SEQ_ITEMS") 
 	private Long id;
 	
 	private String code;

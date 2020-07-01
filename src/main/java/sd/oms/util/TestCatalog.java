@@ -63,7 +63,7 @@ public class TestCatalog {
 	
 	public static ProductCategory getDummyCatalog() {
 		 
-		String seller = "2222";
+		Long seller = new Long(2222);
 		
 		ProductCategory cat = null;
 		SKUItem item = null;

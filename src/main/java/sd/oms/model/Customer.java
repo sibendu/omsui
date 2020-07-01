@@ -15,13 +15,23 @@ import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
+@javax.persistence.TableGenerator(
+	    name="SEQ_CUSTOMER",
+	    table="OMS_SEQ",
+	    pkColumnName = "keyname",
+	    valueColumnName = "keyvalue",
+	    pkColumnValue="CUSTOMER",
+	    initialValue = 1000,
+	    allocationSize=1
+)
+
 @Entity(name = "CUSTOMER")
 public class Customer implements Serializable {
 
 	@Id
-//	@GeneratedValue(generator = "system-uuid")
-//	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	private String id;
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "SEQ_CUSTOMER") 
+	private Long id;
+
 	private String type;
 	private String password;
 	private String name;
@@ -29,12 +39,12 @@ public class Customer implements Serializable {
 	private String email;
 	private String address;
 	private Date created;
-	private String seller;
+	private Long seller;
 	
 	public Customer() {	
 	}
 	
-	public Customer(String id, String type, String seller, String password, String name, String phone, String email, String address, Date created) {
+	public Customer(Long id, String type, Long seller, String password, String name, String phone, String email, String address, Date created) {
 		super();
 		this.id = id;
 		this.type=type;
@@ -48,10 +58,10 @@ public class Customer implements Serializable {
 	}
 	
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getType() {
@@ -65,11 +75,11 @@ public class Customer implements Serializable {
 		return password;
 	}
 	
-	public String getSeller() {
+	public Long getSeller() {
 		return seller;
 	}
 
-	public void setSeller(String seller) {
+	public void setSeller(Long seller) {
 		this.seller = seller;
 	}
 	

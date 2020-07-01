@@ -5,6 +5,7 @@ public class OMSUtil {
 	public static String ORDER_STATUS_PROCESSING = "Processing";
 	public static String ORDER_STATUS_CANCELLED = "Cancelled";
 	public static String ORDER_STATUS_COMPLETED = "Completed";
+	public static String ORDER_STATUS_PAID = "Paid";
 
 	public static String ITEM_STATUS_ORDERED = "Ordered";
 	public static String ITEM_STATUS_CANCELLED = "Cancelled";

@@ -32,19 +32,23 @@ import sd.oms.model.CustomerRepository;
 import sd.oms.model.ProductCategory;
 import sd.oms.model.ProductCategoryRepository;
 import sd.oms.model.SKUItem;
+import sd.oms.service.CatalogService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/customer")
 public class UserController {
-
+	
+	@Autowired
+	private CatalogService catalogService;
+	
 	@Autowired
 	private CustomerRepository customerRepository;
-	
+
 	@Autowired
 	private ProductCategoryRepository categoryRepository;
-	
+
 	@RequestMapping(value = "/health", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getMessage() {
 		ResponseEntity<String> response = null;
@@ -66,13 +70,13 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Customer> findById(@PathVariable(name = "id", required = true) String id) {
+	public ResponseEntity<Customer> findById(@PathVariable(name = "id", required = true) Long id) {
 
 		ResponseEntity<Customer> response = null;
 		Customer result = null;
 		Iterable<Customer> customers = customerRepository.findAll();
 		for (Customer cust : customers) {
-			if (cust.getId().equalsIgnoreCase(id)) {
+			if (cust.getId().longValue() == id.longValue()) {
 				result = cust;
 			}
 		}
@@ -88,12 +92,10 @@ public class UserController {
 	}
 
 	@GetMapping(path = "/addcustomer") //
-	public @ResponseBody String addCustomer(@RequestParam(required = true) String name,
+	public @ResponseBody Customer addCustomer(@RequestParam(required = true) String name,
 			@RequestParam(required = true) String phone, @RequestParam(required = false) String type,
-			@RequestParam(required = false) String seller, @RequestParam(required = false) String password,
+			@RequestParam(required = false) Long seller, @RequestParam(required = false) String password,
 			@RequestParam(required = false) String email, @RequestParam(required = false) String address) {
-
-		String id = phone;
 
 		if (type != null) {
 			type = "SELLER";
@@ -104,41 +106,108 @@ public class UserController {
 
 		password = (password == null || password.trim().equals("")) ? "password" : password;
 
-		Customer cust = new Customer(id, type, seller, password, name, phone, email, address, new Date());
+		Customer cust = new Customer(null, type, seller, password, name, phone, email, address, new Date());
 
 		customerRepository.save(cust);
 
 		if (type.equals("CUSTOMER")) {
 			System.out.println("Registered customer successfully");
-			seller = seller == null? "" : seller;
-			Optional<Customer> sellerUser = customerRepository.findById(seller);
-			sellerUser.ifPresent(s -> {
-				System.out.println("Customer user registered, and mapped to seller "+s.getName());
-			});
-		
-			if (!sellerUser.isPresent()) {
-				System.out.println("Customer user registered; but was not mapped to a seller. seller in request was: " + seller);
+
+			if (seller != null) {
+				Optional<Customer> sellerUser = customerRepository.findById(seller);
+				sellerUser.ifPresent(s -> {
+					System.out.println("Customer user registered, and mapped to seller " + s.getName());
+				});
+
+				if (!sellerUser.isPresent()) {
+					System.out
+							.println("Customer user registered; but was not mapped to a seller. seller in request was: "
+									+ seller);
+				}
 			}
-		}else {
+		} else {
 			System.out.println("Registered seller successfully");
 		}
 
-		return "User added successfully";
+		return cust;
 	}
 
 	@GetMapping(path = "/seed") //
-	public @ResponseBody String seedUser() {
+	public @ResponseBody String seedUser() throws Exception{
 		customerRepository.deleteAll();
-		addCustomer("Mana", "1111", "s", null, null, null, null);
-		addCustomer("Bappa", "2222", "s", null, null, null, null);
 		
-		addCustomer("Arghya", "3333", null, "1111", null, null, null);
-		addCustomer("Mehul", "4444", null, "2222", null, null, null); // mapped to seller Bappa
-		addCustomer("Dipa", "5555", null, "11", null, null, null); // mapped to absent seller 
+		Customer seller1 = addCustomer("Mana", "1111", "s", null, null, null, null);
+		Customer seller2 = addCustomer("Bappa", "2222", "s", null, null, null, null);
+
+		Customer cust1 = addCustomer("Arghya", "3333", null, seller1.getId(), null, null, null);
+		Customer cust2 = addCustomer("Mehul", "4444", null,  seller2.getId(), null, null, null); // mapped to seller Bappa
+		Customer cust3 = addCustomer("Dipa", "5555", null,  seller2.getId() , null, null, null); // mapped to absent seller
 		
-		return "User data seeded successfully";
+		//Seed catalog data
+		seedCatalog(seller2.getId());
+		
+		return "OMS data seeded successfully";
 	}
 	
+	public void seedCatalog(Long seller) throws Exception{
+
+		ProductCategory cat = null;
+		SKUItem item = null;
+
+		ProductCategory rootCatalog = new ProductCategory(null, seller, "Root Catalog", "Root Catalog", null, null);
+		catalogService.save(rootCatalog);
+		System.out.println("Saved root catalog: " + rootCatalog.getId());
+
+		ProductCategory cat1 = new ProductCategory(null, seller, "Super Category 10", "Super Category 10",
+				rootCatalog.getId(), null);
+		ProductCategory cat2 = new ProductCategory(null, seller, "Super Category 20", "Super Category 20",
+				rootCatalog.getId(), null);
+		ProductCategory cat3 = new ProductCategory(null, seller, "Super Category 30", "Super Category 30",
+				rootCatalog.getId(), null);
+		ProductCategory cat4 = new ProductCategory(null, seller, "Super Category 40", "Super Category 40",
+				rootCatalog.getId(), null);
+
+		catalogService.save(cat1);
+		catalogService.save(cat2);
+		catalogService.save(cat3);
+		catalogService.save(cat4);
+		System.out.println("Saved level 1 categories");
+
+		Long parentId = null;
+
+		for (int i = 0; i < 30; i++) {
+
+			if (i < 5) {
+				parentId = cat1.getId();
+			} else if (i >= 5 && i < 12) {
+				parentId = cat2.getId();
+			} else if (i >= 12 && i < 20) {
+				parentId = cat3.getId();
+			} else {
+				parentId = cat4.getId();
+			}
+
+			int catId = (i + 1) * 100;
+
+			cat = new ProductCategory(null, seller, "Category-" + catId, "Category Description-" + catId, parentId,
+					null);
+
+			for (int k = 1; k < 25; k++) {
+
+				long val = catId + 10 + k;
+
+				item = new SKUItem(null, "sku-" + val, "Item -" + val, "Item Description :::: " + val, new Double(val),
+						"kg", new Double(1), new Double(5), new Double(0.5), new Double(2), cat);
+
+				cat.addItem(item);
+			}
+
+			catalogService.save(cat);
+			System.out.println("Saved category " + cat.getId() + "for parent = " + parentId);
+
+		}
+	}
+
 	@GetMapping(path = "/clean") //
 	public @ResponseBody String cleanCustomer() {
 		customerRepository.deleteAll();
