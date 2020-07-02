@@ -1,5 +1,6 @@
 package sd.oms;
 
+import java.io.IOException;
 import java.security.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,16 +35,20 @@ import sd.oms.model.ProductCategory;
 import sd.oms.model.ProductCategoryRepository;
 import sd.oms.model.SKUItem;
 import sd.oms.service.CatalogService;
+import sd.oms.util.OMSUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.mail.*;
+import javax.mail.internet.*; 
 
 @RestController
 @RequestMapping("/customer")
 public class UserController {
-	
+
 	@Autowired
 	private CatalogService catalogService;
-	
+
 	@Autowired
 	private CustomerRepository customerRepository;
 
@@ -97,11 +103,11 @@ public class UserController {
 			@RequestParam(required = false) Long seller, @RequestParam(required = false) String password,
 			@RequestParam(required = false) String email, @RequestParam(required = false) String address) {
 
-		if (type != null) {
-			type = "SELLER";
+		if (type != null && type.trim().equalsIgnoreCase(OMSUtil.USER_TYPE_SELLER)) {
+			type = OMSUtil.USER_TYPE_SELLER;
 			seller = null;
 		} else {
-			type = "CUSTOMER";
+			type = OMSUtil.USER_TYPE_CUSTOMER;
 		}
 
 		password = (password == null || password.trim().equals("")) ? "password" : password;
@@ -133,23 +139,31 @@ public class UserController {
 	}
 
 	@GetMapping(path = "/seed") //
-	public @ResponseBody String seedUser() throws Exception{
+	public @ResponseBody String seedUser() throws Exception {
 		customerRepository.deleteAll();
-		
-		Customer seller1 = addCustomer("Mana", "1111", "s", null, null, null, null);
-		Customer seller2 = addCustomer("Bappa", "2222", "s", null, null, null, null);
 
-		Customer cust1 = addCustomer("Arghya", "3333", null, seller1.getId(), null, null, null);
-		Customer cust2 = addCustomer("Mehul", "4444", null,  seller2.getId(), null, null, null); // mapped to seller Bappa
-		Customer cust3 = addCustomer("Dipa", "5555", null,  seller2.getId() , null, null, null); // mapped to absent seller
+		//String name,String phone,String type,Long seller, String password,String email,String address
 		
-		//Seed catalog data
+		Customer seller1 = addCustomer("Mana", "1111", OMSUtil.USER_TYPE_SELLER , null, null, null, null);
+		Customer seller2 = addCustomer("Sibendu Das", "2222", OMSUtil.USER_TYPE_SELLER, null, null, null, null);
+
+		Customer cust1 = addCustomer("Arghya Dutta", "3333", OMSUtil.USER_TYPE_CUSTOMER, seller2.getId(), "password", "arghyadutta.19@gmail.com" , "Gournagar, Thakurpukur, Kolkata - 63");
+		Customer cust2 = addCustomer("Mehul Das", "4444", OMSUtil.USER_TYPE_CUSTOMER, seller2.getId(), "password", "sibendu.das@gmail.com", "Gournagar, Thakurpukur, Kolkata - 63"); // mapped to seller
+																								// Bappa
+		Customer cust3 = addCustomer("Dipanjana Naha", "5555", OMSUtil.USER_TYPE_CUSTOMER, seller2.getId(), "password", "dipanjanan@gmail.com", "Sakherbazar, Kolkata - 61"); // mapped to absent
+																								// seller
+		Customer cust4 = addCustomer("Nilanjan Das", "6666", OMSUtil.USER_TYPE_CUSTOMER, seller2.getId(), "password", "nilanjan.31@gmail.com", "Tollygunge, Kolkata"); // mapped to absent
+		// seller
+		Customer cust5 = addCustomer("Nilotpal Ghosh", "7777", OMSUtil.USER_TYPE_CUSTOMER, seller2.getId(), "password", "nilotpalghosh@gmail.com", "Oxytown, Kolkata"); // mapped to absent
+		// seller
+
+		// Seed catalog data
 		seedCatalog(seller2.getId());
-		
+
 		return "OMS data seeded successfully";
 	}
-	
-	public void seedCatalog(Long seller) throws Exception{
+
+	public void seedCatalog(Long seller) throws Exception {
 
 		ProductCategory cat = null;
 		SKUItem item = null;
@@ -213,5 +227,11 @@ public class UserController {
 		customerRepository.deleteAll();
 		return "All users deleted";
 	}
+
+//	@GetMapping(path = "/send") //
+//	public @ResponseBody String send() throws Exception {
+//		sendmail();
+//		return "Email sent successfully";
+//	}
 
 }

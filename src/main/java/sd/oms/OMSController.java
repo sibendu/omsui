@@ -144,7 +144,7 @@ public class OMSController {
 		
 		double totalPrice = 0;
 		
-		Order order = new Order(null, inputOrder.getInstruction(), OMSUtil.ORDER_STATUS_NEW, null, cust.getId(), cust.getSeller(), null); 	
+		Order order = new Order(null, inputOrder.getInstruction(), OMSUtil.ORDER_STATUS_NEW, null, cust.getId(), cust.getSeller(), null, cust.getName()); 	
 	  
     	for (ItemDTO item : items) {   
     		totalPrice = totalPrice +  item.getPrice() * item.getQuantity();
@@ -155,6 +155,20 @@ public class OMSController {
     	
 	    orderRepository.save(order);	
 		System.out.println("Order saved successfully.");
+		
+		//Send order email
+		try {
+			Optional<Customer> seller = customerRepository.findById(cust.getSeller());
+			if(seller.isPresent()) {
+				if(seller.get().getEmail() != null && seller.get().getEmail().indexOf("@") != -1) {	
+					catalogService.sendOrderEmail(seller.get().getEmail(), order, cust);
+					System.out.println("Order emailed successfully.");
+				}
+			}
+		}catch(Exception e) {
+			System.out.println("Order email failure: "+e.getMessage());
+			e.printStackTrace();
+		}
 		
 		ArrayList<Order> orders =  getOrders(cust.getId());
 		model.addAttribute("orders", orders);
