@@ -65,7 +65,7 @@
           </li>
 	  	  <li class="nav-item active">
             <a class="nav-link waves-effect" href="/cart">
-              <span class="badge red z-depth-1 mr-1"> . </span>
+              <span class="badge red z-depth-1 mr-1" id="cartItemsNo" name="cartItemsNo"> - </span>
               <i class="fas fa-shopping-cart"></i>
               <span class="clearfix d-none d-sm-inline-block">Cart</span>
             </a>
@@ -152,7 +152,10 @@
 	//alert(cartitems.length + ' :::Items in cart');
 	
 	if(cartitems != null && cartitems.length > 0){
-	
+		
+		//Update cart item count
+  		updateCartItemCount();
+		
 		var html = '<ul class="list-group mb-3 z-depth-1">';
 		
 		for (index = 0; index < cartitems.length; index++) {
@@ -209,7 +212,10 @@
   		//alert("Clearing cart, you can select from products page again.");
   		cartitems = [];
   		saveCart();
-
+		
+  		//Update cart item count
+  		updateCartItemCount();
+  		
   		//clear the table on screen
   		 $('#sellerInstruction').remove();
   		 $('#btnPlaceOrder').remove();

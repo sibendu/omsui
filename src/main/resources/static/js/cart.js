@@ -93,7 +93,9 @@ function addItemToCart(id, code, name, description, price, unit, fieldName) {
 	$('#btnRemoveFromCart-'+code).prop('disabled', false);			
 	$('#btnAddToCart-'+code).text('Update Cart');
 
-	alert("Cart updated: Items = "+cartitems.length);
+	updateCartItemCount();
+
+	alert("Cart updated.");
 }
 
 
@@ -113,7 +115,13 @@ function removeItemFromCart(id, code, name, description, price, unit, fieldName)
 	$('#btnRemoveFromCart-'+code).prop('disabled', true);
 	$('#btnAddToCart-'+code).text('Add To Cart');
 	
-	//$('#itemRow-'+code).remove();
+	updateCartItemCount();
 	
-	alert("Cart updated: Items = "+cartitems.length);
+	alert("Cart updated.");
+}
+
+function updateCartItemCount(){
+	//Update cart item count
+	$("#cartItemsNo").empty();
+	$("#cartItemsNo").append(cartitems.length);
 }
