@@ -64,6 +64,11 @@ public class OMSController {
 		if(customer != null) {
 			httpSession.setAttribute("customer", customer);
 			
+			String IMAGE_URL = OMSUtil.IMAGE_BASE_URL +customer.getSeller() + "/";  
+			
+			httpSession.setAttribute("IMAGE_URL", IMAGE_URL);
+			httpSession.setAttribute("IMAGE_URL_SUFFIX", OMSUtil.IMAGE_URL_SUFFIX);
+			
 			try {
 				ProductCategory root = catalogService.findCatalog(customer.getSeller()); // getJson(); Test.getDummyCatalog();
 				

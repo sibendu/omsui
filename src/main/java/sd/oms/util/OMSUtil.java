@@ -1,11 +1,25 @@
 package sd.oms.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
+
+import com.google.cloud.storage.BlobId; 
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+
+import com.google.auth.oauth2.*;
+import com.google.cloud.storage.*;
 
 public class OMSUtil {
 	
+	public static String IMAGE_BASE_URL = "https://storage.cloud.google.com/oms_pictures/";
+	public static String IMAGE_URL_SUFFIX = ".jpg?authuser=3";
+	
 	public static String USER_TYPE_SELLER = "SELLER";
-	public static String USER_TYPE_CUSTOMER = "";
+	public static String USER_TYPE_CUSTOMER = "CUSTOMER";
 	public static String USER_TYPE_ADMIN = "ADMIN";
 	
 	
@@ -19,66 +33,59 @@ public class OMSUtil {
 	public static String ITEM_STATUS_CANCELLED = "Cancelled";
 	public static String ITEM_STATUS_NOT_AVAILABLE = "Not Available";
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		// Recipient's email ID needs to be mentioned.
-        String to = "fromaddress@gmail.com";
+		String to = "fromaddress@gmail.com";
 		
+		// Instantiates a client
+	    Storage storage = StorageOptions.getDefaultInstance().getService();
+
+	    // The name for the new bucket
+	    String bucketName = args[0];  // "my-new-bucket";
+
+	    // Creates the new bucket
+	    Bucket bucket = storage.create(BucketInfo.of(bucketName));
+
+	    System.out.printf("Bucket %s created.%n", bucket.getName());
+		
+		uploadObject(null, null, null, null);
 	}
-	/*
-	
-	public static void mail(String to) {    
 
-        // Sender's email ID needs to be mentioned
-        String from = "toaddress@gmail.com";
+	public static void uploadObject(String projectId, String bucketName, String objectName, String filePath)
+			throws IOException {
 
-        // Assuming you are sending email from through gmails smtp
-        String host = "smtp.gmail.com";
-        String port = "465";
+		projectId = "ecomm-280407";
+		bucketName = "oms_pictures";
+		objectName = "test-no-image.jpg";
+		filePath = "C:\\Incub\\Workspace\\oms\\oms_pictures\\no-image.jpg";
+		
+		String jsonPath = "base-project-f69ff8d47af1.json";
+		
+		try {
+//			System.out.println("Here I am");	
+//			GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonPath))
+//					.createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+//			System.out.println(credentials);
+//			Storage store = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+//			System.out.println(store);
+//			
+//			System.out.println("Buckets:");
+//			Storage.Buckets.List buckets = store.buckets().list();
+//			for (Bucket bucket : buckets.iterateAll()) {
+//				System.out.println(bucket.toString());
+//			}
 
-        // Get system properties
-        Properties properties = System.getProperties();
+			Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+			BlobId blobId = BlobId.of(bucketName, objectName);
+			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+			storage.create(blobInfo, Files.readAllBytes(Paths.get(filePath)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Error: " + e.getMessage());
+		}
 
-        // Setup mail server
-        properties.put("mail.smtp.host", host);
-        properties.put("mail.smtp.port", port);
-        properties.put("mail.smtp.ssl.enable", "true");
-        properties.put("mail.smtp.auth", "true");
-
-        // Get the Session object.// and pass username and password
-        Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("fromaddress@gmail.com", "*******");
-            }
-        });
-
-        // Used to debug SMTP issues
-        session.setDebug(true);
-
-        try {
-            // Create a default MimeMessage object.
-            MimeMessage message = new MimeMessage(session);
-
-            // Set From: header field of the header.
-            message.setFrom(new InternetAddress(from));
-
-            // Set To: header field of the header.
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-
-            // Set Subject: header field
-            message.setSubject("This is the Subject Line!");
-
-            // Now set the actual message
-            message.setText("This is actual message");
-
-            System.out.println("sending...");
-            // Send message
-            Transport.send(message);
-            System.out.println("Sent message successfully....");
-            
-        } catch (MessagingException mex) {
-            mex.printStackTrace();
-        }
-	   }
-	*/
+		System.out.println("File " + filePath + " uploaded to bucket " + bucketName + " as " + objectName);
+	}
 }

@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+
 	implementation 'org.webjars:bootstrap:3.4.1'
 	implementation 'org.webjars:bootstrap-datepicker:1.0.1'
 	implementation 'org.webjars:jquery:3.5.1'
@@ -23,6 +24,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
 	implementation 'com.google.code.gson:gson'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	
+	implementation 'com.google.cloud:google-cloud-storage:1.111.1'
+	
 	
 	runtimeOnly 'mysql:mysql-connector-java'
 		

@@ -157,13 +157,22 @@ public class UserController {
 		Customer cust5 = addCustomer("Nilotpal Ghosh", "7777", OMSUtil.USER_TYPE_CUSTOMER, seller2.getId(), "password", "nilotpalghosh@gmail.com", "Oxytown, Kolkata"); // mapped to absent
 		// seller
 
-		// Seed catalog data
-		seedCatalog(seller2.getId());
+		// Seed only root catalog data
+		seedRootCatalogOnly(seller1.getId());
+				
+		// Seed Dummy catalog data
+		seedDummyCatalog(seller2.getId());
 
 		return "OMS data seeded successfully";
 	}
+	
+	public void seedRootCatalogOnly(Long seller) throws Exception {
+		ProductCategory rootCatalog = new ProductCategory(null, seller, "Root Catalog", "Root Catalog", null, null);
+		catalogService.save(rootCatalog);
+		System.out.println("Seeded root catalog: " + rootCatalog.getId()+" for seller user: "+seller);
+	}
 
-	public void seedCatalog(Long seller) throws Exception {
+	public void seedDummyCatalog(Long seller) throws Exception {
 
 		ProductCategory cat = null;
 		SKUItem item = null;
